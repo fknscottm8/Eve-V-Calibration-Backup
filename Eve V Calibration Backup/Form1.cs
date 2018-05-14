@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data.SqlServerCe;
 using System.IO;
 using System.IO.Compression;
@@ -14,10 +14,6 @@ namespace Eve_V_Calibration_Backup
         public Form1()
         {
             InitializeComponent();
-
-            foreach (ManagementObject mo in new ManagementObjectSearcher("SELECT PNPDeviceID FROM Win32_DesktopMonitor WHERE DeviceID='DesktopMonitor1'").Get())
-                if (mo["PNPDeviceID"].ToString() != null && mo["PNPDeviceID"].ToString().Contains("\\"))
-                    label1.Text = mo["PNPDeviceID"].ToString().Split('\\')[2];
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -52,9 +48,15 @@ namespace Eve_V_Calibration_Backup
 
             con.Open();
 
+            string pnpid = string.Empty;
+
+            foreach (ManagementObject mo in new ManagementObjectSearcher("SELECT PNPDeviceID FROM Win32_DesktopMonitor WHERE DeviceID='DesktopMonitor1'").Get())
+                if (mo["PNPDeviceID"].ToString() != null && mo["PNPDeviceID"].ToString().Contains("\\"))
+                    pnpid = mo["PNPDeviceID"].ToString();
+
             new SqlCeCommand(
                 string.Format("update Monitors set pnpid = '{0}' where MonitorID = {1}",
-                label1.Text,
+                pnpid,
                 new SqlCeCommand("select CreatedMonitorID from Monitors join Profiles on Profiles.CreatedMonitorID = Monitors.MonitorID join (select top 1 ICC_DataID from ICCs order by CreationDate desc) ICCs on ICCs.ICC_DataID = Profiles.ICC_DataID",
                     con).ExecuteScalar().ToString()),
                 con).ExecuteScalar();
