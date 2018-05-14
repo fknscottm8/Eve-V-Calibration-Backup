@@ -52,7 +52,7 @@ namespace Eve_V_Calibration_Backup
 
             foreach (ManagementObject mo in new ManagementObjectSearcher("SELECT PNPDeviceID FROM Win32_DesktopMonitor WHERE DeviceID='DesktopMonitor1'").Get())
                 if (mo["PNPDeviceID"].ToString() != null && mo["PNPDeviceID"].ToString().Contains("\\"))
-                    pnpid = mo["PNPDeviceID"].ToString();
+                    pnpid = mo["PNPDeviceID"].ToString().Split('\\')[2];
 
             new SqlCeCommand(
                 string.Format("update Monitors set pnpid = '{0}' where MonitorID = {1}",
